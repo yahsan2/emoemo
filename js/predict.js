@@ -42,6 +42,7 @@ function startWebcam() {
   tracker.setStepSize(2);
   tracker.setEdgesDensity(0.1);
   tracking.track(video, tracker, { camera: true });
+  video.play()
 };
 
 //-----------------------
