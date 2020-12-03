@@ -6,7 +6,7 @@ const originalVideoWidth=640;
 const tracker = new tracking.LandmarksTracker();
 
 Vue.component('monitor-canvas', {
-  template: '<canvas id="faceCanvas" width="320" height="240" ></canvas>',
+  template: '<canvas width="320" height="240" ></canvas>',
 })
 Vue.component('monitor-video', {
   template: '<video width="320" height="240" id="monitor-video" loop preload playsinline autoplay></video>',
@@ -18,27 +18,38 @@ new Vue({
   data() {
     return {
       model: null,
-      emotionNum: 6,
-      emotionProbability: 1.000000,
+      results: [],
       debug_message: 'hello.please load model.'
     }
   },
   computed: {
-    currentEmotionEmoji(){
-      return EMOJIS[this.emotionNum]
+    happyIndex() {
+      return this.results.findIndex(r => r.className === 'happy')
     },
-    currentEmotionClass(){
-      console.log(this.emotionNum)
-      console.log(CLASSES)
-
-      return CLASSES[this.emotionNum]
+    happyProbability() {
+      return this.results.find(r => r.className === 'happy').probability
     },
-    currentEmotionColor(){
-      return COLORS[this.emotionNum]
+    topEmotion() {
+      return this.results[0] || {}
+    },
+    emotionNum() {
+      return this.topEmotion.classNumber
+    },
+    emotionProbability() {
+      return this.topEmotion.probability && this.topEmotion.probability.toFixed(6)
+    },
+    emotionEmoji(){
+      return this.topEmotion.emoji
+    },
+    emotionClass(){
+      return this.topEmotion.className
+    },
+    emotionColor(){
+      return this.topEmotion.color
     }
   },
   methods: {
-    start: function() {
+    start() {
       this.startWebcam();
       this.alignment();
     },
@@ -51,30 +62,26 @@ new Vue({
       tracking.track($video, tracker, { camera: true });
     },
     alignment() {
-      tracker.on('track', (event)=> {
-        var canvas = this.$refs.canvas.$el;
-        var context = canvas.getContext('2d');
+      var canvas = this.$refs.canvas.$el;
+      var context = canvas.getContext('2d');
 
+      tracker.on('track', (event)=> {
         context.clearRect(0,0, canvas.width, canvas.height);
         if(!event.data) return;
-        event.data.faces.forEach((rect)=> {
+        event.data.faces.forEach(async (rect)=> {
           this.predict(rect);
-          console.log(this.currentEmotionClass)
-          console.log(this.emotionNum, this.currentEmotionClass, this.emotionProbability);
-
-          context.strokeStyle = this.currentEmotionColor;
+          context.strokeStyle = this.emotionColor;
           context.lineWidth = 2;
           context.strokeRect(rect.x, rect.y, rect.width, rect.height);
           context.font = '11px Helvetica';
-          context.fillStyle = this.currentEmotionColor;
-          context.fillText(this.currentEmotionClass, rect.x + rect.width + 5, rect.y + 11);
-          context.fillText(this.emotionProbability.toFixed(6), rect.x + rect.width + 5, rect.y + 22);
-
+          context.fillStyle = this.emotionColor;
+          context.fillText(this.emotionClass, rect.x + rect.width + 5, rect.y + 11);
+          context.fillText(this.emotionProbability, rect.x + rect.width + 5, rect.y + 22);
         });
         event.data.landmarks.forEach((landmarks)=> {
           for(let l in landmarks){
             context.beginPath();
-            context.fillStyle = this.currentEmotionColor;
+            context.fillStyle = this.emotionColor;
             context.arc(landmarks[l][0],landmarks[l][1],2,0,2*Math.PI);
             context.fill();
           }
@@ -101,24 +108,20 @@ new Vue({
     },
     async predict(rect){
       let tensor = this.captureWebcam(rect) ;
-
       let prediction = await this.model.predict(tensor).data();
-      let results = Array.from(prediction).map((p,i)=>{
+      this.results = Array.from(prediction).map((p,i)=>{
         return {
             probability: p,
+            color: COLORS[i],
+            emoji: EMOJIS[i],
             className: CLASSES[i],
             classNumber: i
         };
       }).sort((a,b)=>{
           return b.probability - a.probability;
       }).slice(0,6);
-      results.forEach((p)=>{
-        this.debug_message = `${p.className} : ${p.probability.toFixed(6)}`
-        this.emotionNum = results[0].classNumber
-        this.emotionProbability = results[0].probability
-        // this.emotion = emotion = [results[0].classNumber,results[0].className, results[0].probability]
-        // return emotion
-      });
+      this.debug_message = this.results
+
     },
     async loadModel(){
       console.log("model loading..");

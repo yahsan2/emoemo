@@ -5,7 +5,6 @@
 	<title>Emotion recognition</title>
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<link href="img/favicon.ico" rel="shortcut icon" type="image/x-icon">
-  <link href="css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
 </head>
@@ -17,10 +16,11 @@
             <div class="list-inline" id="video-container">
 							<monitor-video ref="monitor" id="main-stream-video"></monitor-video>
 							<monitor-canvas ref="canvas" id="main-stream-canvas"></monitor-canvas>
-							<canvas ref="faceCanvas" height="100" id="faceCanvas" width="100"></canvas>
+							<canvas ref="faceCanvas" width="320" height="240"></canvas>
 						</div>
 						<v-btn color="cyan" dark @click="start" class="mt-2">カメラをオンにしてください。</v-btn>
 						<p>{{debug_message}}</p>
+						{{ results }}
           </v-container>
         </v-main>
       </v-app>
@@ -67,9 +67,9 @@
 	<footer class="text-center">
 		<small>&#169; 2018 Studio Identical Twins All Rights Reserved.</small>
 	</footer>
-	<script src="js/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bounce.js/0.8.2/bounce.min.js"></script>
 	<script src="js/tensorflow.min.js"></script>
 	<script src="tracking/build/tracking-min.js"></script>
 	<script src="tracking/build/data/face-min.js"></script>
