@@ -5,15 +5,32 @@
 	<title>Emotion recognition</title>
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<link href="img/favicon.ico" rel="shortcut icon" type="image/x-icon">
-	<link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.min.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
 </head>
 <body>
-	<article id="article">
+    <div id="app">
+      <v-app>
+        <v-main>
+          <v-container>
+            <div class="list-inline" id="video-container">
+							<monitor-video ref="monitor" id="main-stream-video"></monitor-video>
+							<monitor-canvas ref="canvas" id="main-stream-canvas"></monitor-canvas>
+							<canvas ref="faceCanvas" height="100" id="faceCanvas" width="100"></canvas>
+						</div>
+						<v-btn color="cyan" dark @click="start" class="mt-2">カメラをオンにしてください。</v-btn>
+						<p>{{debug_message}}</p>
+          </v-container>
+        </v-main>
+      </v-app>
+    </div>
+
+	<!-- <article id="article">
 		<h1 class="text-center" id="title">😄😠😢 Emotion recognition<br><small>with TensorFlow.js</small></h1>
 
 		<div class="container-b">
-			<div class="video-container" id="video-container">
+			<div class="list-inline" id="video-container">
 				<video width="320" height="240" id="main-stream-video" loop preload playsinline autoplay></video>
 				<canvas width="320" height="240" id="main-stream-canvas"></canvas>
 			</div>
@@ -45,19 +62,19 @@
 					<li>hello.please load model.</li>
 				</ul>
 			</div>
-		</div>
-				
+		</div> -->
 	</article>
 	<footer class="text-center">
 		<small>&#169; 2018 Studio Identical Twins All Rights Reserved.</small>
 	</footer>
-	<script src="js/jquery.min.js"></script> 
-	<script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script> 
-	<script src="js/tensorflow.min.js"></script> 
-	<script src="tracking/build/tracking-min.js"></script> 
-	<script src="tracking/build/data/face-min.js"></script> 
-	<script src="tracking/src/alignment/training/Landmarks.js"></script> 
-	<script src="tracking/src/alignment/training/Regressor.js"></script> 
+	<script src="js/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.x/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@2.x/dist/vuetify.js"></script>
+	<script src="js/tensorflow.min.js"></script>
+	<script src="tracking/build/tracking-min.js"></script>
+	<script src="tracking/build/data/face-min.js"></script>
+	<script src="tracking/src/alignment/training/Landmarks.js"></script>
+	<script src="tracking/src/alignment/training/Regressor.js"></script>
 
 	<script src="js/predict.js"></script>
 </body>
