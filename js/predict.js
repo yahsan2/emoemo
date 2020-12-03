@@ -1,13 +1,9 @@
-const CLASSES =  ({0:'😠 angry',1:'😬 disgust',2:'😨 fear',3:'😄 happy', 4:'😢 sad',5:'😮 surprise',6:'😐 neutral'})
-const COLORS =  ({0:'red',1:'green',2:'purple',3:'yellow', 4:'blue',5:'skyblue',6:'white'})
+const CLASSES =  {0:'angry',1:'disgust',2:'fear',3:'happy',4:'sad',5:'surprise',6:'neutral'}
+const EMOJIS =  {0:'😠',1:'😬',2:'😨',3:'😄',4:'😢',5:'😮',6:'😐'}
+const COLORS =  {0:'red',1:'green',2:'purple',3:'yellow', 4:'blue',5:'skyblue',6:'white'}
 
-let originalVideoWidth=640;
-
-let model;
-let emotion= [6,CLASSES[6],1.000000];
-let emotionColor;
-
-var tracker = new tracking.LandmarksTracker();
+const originalVideoWidth=640;
+const tracker = new tracking.LandmarksTracker();
 
 Vue.component('monitor-canvas', {
   template: '<canvas id="faceCanvas" width="320" height="240" ></canvas>',
@@ -22,7 +18,23 @@ new Vue({
   data() {
     return {
       model: null,
+      emotionNum: 6,
+      emotionProbability: 1.000000,
       debug_message: 'hello.please load model.'
+    }
+  },
+  computed: {
+    currentEmotionEmoji(){
+      return EMOJIS[this.emotionNum]
+    },
+    currentEmotionClass(){
+      console.log(this.emotionNum)
+      console.log(CLASSES)
+
+      return CLASSES[this.emotionNum]
+    },
+    currentEmotionColor(){
+      return COLORS[this.emotionNum]
     }
   },
   methods: {
@@ -47,23 +59,22 @@ new Vue({
         if(!event.data) return;
         event.data.faces.forEach((rect)=> {
           this.predict(rect);
-          console.log(emotion[0],emotion[1],emotion[2]);
+          console.log(this.currentEmotionClass)
+          console.log(this.emotionNum, this.currentEmotionClass, this.emotionProbability);
 
-          emotionColor = COLORS[emotion[0]]
-
-          context.strokeStyle = emotionColor;
+          context.strokeStyle = this.currentEmotionColor;
           context.lineWidth = 2;
           context.strokeRect(rect.x, rect.y, rect.width, rect.height);
           context.font = '11px Helvetica';
-          context.fillStyle = emotionColor;
-          context.fillText(emotion[1], rect.x + rect.width + 5, rect.y + 11);
-          context.fillText(emotion[2].toFixed(6), rect.x + rect.width + 5, rect.y + 22);
+          context.fillStyle = this.currentEmotionColor;
+          context.fillText(this.currentEmotionClass, rect.x + rect.width + 5, rect.y + 11);
+          context.fillText(this.emotionProbability.toFixed(6), rect.x + rect.width + 5, rect.y + 22);
 
         });
-        event.data.landmarks.forEach(function(landmarks) {
-          for(var l in landmarks){
+        event.data.landmarks.forEach((landmarks)=> {
+          for(let l in landmarks){
             context.beginPath();
-            context.fillStyle = emotionColor;
+            context.fillStyle = this.currentEmotionColor;
             context.arc(landmarks[l][0],landmarks[l][1],2,0,2*Math.PI);
             context.fill();
           }
@@ -77,7 +88,6 @@ new Vue({
       return tensor.div(offset).expandDims();
     },
     captureWebcam: function(rect) {
-      console.log(this.$refs)
       var faceCanvas = this.$refs.faceCanvas;
       var faceContext = faceCanvas.getContext('2d');
       var video = this.$refs.monitor.$el
@@ -93,22 +103,21 @@ new Vue({
       let tensor = this.captureWebcam(rect) ;
 
       let prediction = await this.model.predict(tensor).data();
-      let results = Array.from(prediction)
-                  .map(function(p,i){
-      return {
-          probability: p,
-          className: CLASSES[i],
-          classNumber: i
-      };
-      }).sort(function(a,b){
-          return b.probability-a.probability;
+      let results = Array.from(prediction).map((p,i)=>{
+        return {
+            probability: p,
+            className: CLASSES[i],
+            classNumber: i
+        };
+      }).sort((a,b)=>{
+          return b.probability - a.probability;
       }).slice(0,6);
-      //   $("#console").empty();
       results.forEach((p)=>{
-        // $("#console").append(`<li>${p.className} : ${p.probability.toFixed(6)}</li>`);
-        console.log(`<li>${p.className} : ${p.probability.toFixed(6)}</li>`)
         this.debug_message = `${p.className} : ${p.probability.toFixed(6)}`
-        return emotion = [results[0].classNumber,results[0].className, results[0].probability]
+        this.emotionNum = results[0].classNumber
+        this.emotionProbability = results[0].probability
+        // this.emotion = emotion = [results[0].classNumber,results[0].className, results[0].probability]
+        // return emotion
       });
     },
     async loadModel(){
