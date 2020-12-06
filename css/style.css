@@ -5,32 +5,25 @@ body {
   background-color: #f6f6f6;
   margin: 0 auto;
   font-family: monospace;
+  * {
+    box-sizing: border-box;
+  }
 }
 
-#title {
-  font-size: 160%;
-  margin-top: 20px;
+.post-form-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  border-top: 1px solid #eee;
+  background-color: #fff;
 }
-
-#title small {
-  font-size: 80%;
-}
-
-.container-b {
-  margin: 20px 0;
-}
-
-.btn-group {
-  margin-right: 10px;
-}
-
-.output {
-  background-color: #555;
-  color: #f6f6f6;
-  margin-top: 20px;
-  padding: 1em 1em 0 1em;
-  border: solid 1px;
-  border-radius: 6px;
+.post-form {
+  width: 440px;
+  max-width: 100%;
+  padding: 20px;
+  /* background-color: #fff; */
+  margin: 0 auto;
 }
 
 footer {

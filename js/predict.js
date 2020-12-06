@@ -17,9 +17,148 @@ new Vue({
   vuetify: new Vuetify(),
   data() {
     return {
+      valid: false,
+      post: {
+        text: "",
+        name: ""
+      },
+      postRules: [
+        v => !!v || 'Name is required',
+        v => v.length <= 10 || 'Name must be less than 10 characters',
+      ],
       model: null,
       results: [],
-      debug_message: 'hello.please load model.'
+      debug_message: 'hello.please load model.',
+      avatarStyleOptions: {
+        topType: [
+          "NoHair",
+          "Eyepatch",
+          "Hat",
+          "Hijab",
+          "Turban",
+          "WinterHat1",
+          "WinterHat2",
+          "WinterHat3",
+          "WinterHat4",
+          "LongHairBigHair",
+          "LongHairBob",
+          "LongHairBun",
+          "LongHairCurly",
+          "LongHairCurvy",
+          "LongHairDreads",
+          "LongHairFrida",
+          "LongHairFro",
+          "LongHairFroBand",
+          "LongHairNotTooLong",
+          "LongHairShavedSides",
+          "LongHairMiaWallace",
+          "LongHairStraight",
+          "LongHairStraight2",
+          "LongHairStraightStrand",
+          "ShortHairDreads01",
+          "ShortHairDreads02",
+          "ShortHairFrizzle",
+          "ShortHairShaggyMullet",
+          "ShortHairShortCurly",
+          "ShortHairShortFlat",
+          "ShortHairShortRound",
+          "ShortHairShortWaved",
+          "ShortHairSides",
+          "ShortHairTheCaesar",
+          "ShortHairTheCaesarSidePart",
+        ],
+        facialHairType: [
+          "Blank",
+          "BeardMedium",
+          "BeardLight",
+          "BeardMagestic",
+          "MoustacheFancy",
+          "MoustacheMagnum",
+        ],
+        hairColor: [
+          "Blank",
+          "Kurt",
+          "Prescription01",
+          "Prescription02",
+          "Round",
+          "Sunglasses",
+          "Wayfarers",
+        ],
+        accessoriesType: [
+          "Blank",
+          "Kurt",
+          "Prescription01",
+          "Prescription02",
+          "Round",
+          "Sunglasses",
+          "Wayfarers",
+        ],
+        clotheType: [
+          "BlazerShirt",
+          "BlazerSweater",
+          "CollarSweater",
+          "GraphicShirt",
+          "Hoodie",
+          "Overall",
+          "ShirtCrewNeck",
+          "ShirtScoopNeck",
+          "ShirtVNeck",
+        ],
+        clotheColor: [
+          "Black",
+          "Blue01",
+          "Blue02",
+          "Blue03",
+          "Gray01",
+          "Gray02",
+          "Heather",
+          "PastelBlue",
+          "PastelGreen",
+          "PastelOrange",
+          "PastelRed",
+          "PastelYellow",
+          "Pink",
+          "Red",
+          "White",
+        ],
+        eyeType: [
+          "Close",
+          "Cry",
+          "Default",
+          "Dizzy",
+          "EyeRoll",
+          "Happy",
+          "Hearts",
+          "Side",
+          "Squint",
+          "Surprised",
+          "Wink",
+          "WinkWacky",
+        ],
+        eyebrowType: [
+          "Angry",
+          "AngryNatural",
+          "Default",
+          "DefaultNatural",
+          "FlatNatural",
+          "RaisedExcited",
+          "RaisedExcitedNatural",
+          "SadConcerned",
+          "SadConcernedNatural",
+          "UnibrowNatural",
+          "UpDown",
+          "UpDownNatural",
+        ],
+        skinColor: [
+          "Tanned",
+          "Yellow",
+          "Pale",
+          "Light",
+          "Brown",
+          "DarkBrown",
+          "Black",
+        ]
+      }
     }
   },
   computed: {
@@ -128,6 +267,17 @@ new Vue({
       this.debug_message = `model loading...`
       this.model = await tf.loadModel(`/emotion_XCEPTION/model.json`);
       this.debug_message = `XCEPTION model loaded.`
+    },
+    randomAvatar () {
+      const topType = this.avatarStyleOptions.topType[Math.floor(Math.random() * this.avatarStyleOptions.topType.length)];
+      const accessoriesType = this.avatarStyleOptions.accessoriesType[Math.floor(Math.random() * this.avatarStyleOptions.accessoriesType.length)];
+      const hairColor = this.avatarStyleOptions.hairColor[Math.floor(Math.random() * this.avatarStyleOptions.hairColor.length)];
+      const facialHairType = this.avatarStyleOptions.facialHairType[Math.floor(Math.random() * this.avatarStyleOptions.facialHairType.length)];
+      const clotheType = this.avatarStyleOptions.clotheType[Math.floor(Math.random() * this.avatarStyleOptions.clotheType.length)];
+      const clotheColor = this.avatarStyleOptions.clotheColor[Math.floor(Math.random() * this.avatarStyleOptions.clotheColor.length)];
+      const eyeType = this.avatarStyleOptions.eyeType[Math.floor(Math.random() * this.avatarStyleOptions.eyeType.length)];
+      const eyebrowType = this.avatarStyleOptions.eyebrowType[Math.floor(Math.random() * this.avatarStyleOptions.eyebrowType.length)];
+      return `https://avataaars.io/?avatarStyle=transparent&topType=${topType}&accessoriesType=${accessoriesType}&hairColor=${hairColor}&facialHairType=${facialHairType}&clotheType=${clotheType}&clotheColor=${clotheColor}&eyeType=${eyeType}&eyebrowType=${eyebrowType}&mouthType=Default&skinColor=Light`
     }
   },
   mounted() {

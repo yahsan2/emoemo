@@ -21,7 +21,36 @@
 						<v-btn color="cyan" dark @click="start" class="mt-2">カメラをオンにしてください。</v-btn>
 						<p>{{debug_message}}</p>
 						{{ results }}
+						<div class="timeline">
+							<v-card class="mb-2 mx-auto" color="#26c6da" dark max-width="400" v-for="i in 10" :key="i">
+								<v-card-text class="headline font-weight-bold">
+									"Turns out semicolon-less style is easier and safer in TS because most gotcha edge cases are type invalid as well."
+								</v-card-text>
+								<v-card-actions>
+									<v-list-item class="grow">
+										<v-list-item-avatar color="grey darken-3">
+											<v-img class="elevation-6" alt=""
+												:src="randomAvatar()">
+											</v-img>
+										</v-list-item-avatar>
+										<v-list-item-content>
+											<v-list-item-title>Evan You</v-list-item-title>
+										</v-list-item-content>
+									</v-list-item>
+								</v-card-actions>
+							</v-card>
+						</div>
           </v-container>
+					<div class="post-form-container">
+						<v-form v-model="valid" class="post-form">
+							<v-text-field v-model="post.name" :counter="10" label="First name" required></v-text-field>
+							<v-textarea
+							name="input-7-1" label="Default style"
+							v-model="post.text"
+							:rules="postRules"
+							></v-textarea>
+						</v-form>
+					</div>
         </v-main>
       </v-app>
     </div>
