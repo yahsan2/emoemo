@@ -203,12 +203,12 @@ new Vue({
     alignment() {
       var canvas = this.$refs.canvas.$el;
       var context = canvas.getContext('2d');
-
       tracker.on('track', (event)=> {
         context.clearRect(0,0, canvas.width, canvas.height);
         if(!event.data) return;
         event.data.faces.forEach(async (rect)=> {
-          this.predict(rect);
+          let tensor = this.captureWebcam(rect) ;
+          this.predict(tensor);
           context.strokeStyle = this.emotionColor;
           context.lineWidth = 2;
           context.strokeRect(rect.x, rect.y, rect.width, rect.height);
@@ -233,20 +233,17 @@ new Vue({
       let offset = tf.scalar(255);
       return tensor.div(offset).expandDims();
     },
-    captureWebcam: function(rect) {
+    captureWebcam(rect) {
       var faceCanvas = this.$refs.faceCanvas;
       var faceContext = faceCanvas.getContext('2d');
       var video = this.$refs.monitor.$el
-
       var adjust = originalVideoWidth / video.width
       faceContext.drawImage(video, rect.x * adjust , rect.y * adjust, rect.width * adjust, rect.height * adjust,0, 0, 100, 100);
 
       tensor_image = this.preprocessImage(faceCanvas);
-
       return tensor_image;
     },
-    async predict(rect){
-      let tensor = this.captureWebcam(rect) ;
+    async predict(tensor){
       let prediction = await this.model.predict(tensor).data();
       this.results = Array.from(prediction).map((p,i)=>{
         return {
@@ -259,8 +256,6 @@ new Vue({
       }).sort((a,b)=>{
           return b.probability - a.probability;
       }).slice(0,6);
-      this.debug_message = this.results
-
     },
     async loadModel(){
       console.log("model loading..");
