@@ -283,7 +283,7 @@ new Vue({
       if(!this.emotionClass) {
         return false
       }
-      firestore.collection("emotions").doc(this.emotionClass).collection('posts').add({
+      firestore.collection("emotions").doc(this.targetEmotion).collection('posts').add({
         name: this.post.name,
         text: this.post.text
       })
