@@ -301,7 +301,6 @@ new Vue({
         name: this.post.name,
         text: this.post.text
       })
-      this.$set(this.post, 'name', '')
       this.$set(this.post, 'text', '')
     }
   },
