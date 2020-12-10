@@ -21,10 +21,19 @@ new Vue({
     return {
       posts: [],
       targetEmotion: 'happy',
+      user: {},
       webcam: false,
       post: {
         text: "",
-        name: ""
+        name: function() {
+          const sizes = ['こ', 'おお', '']
+          const animals = ['クマ', 'ネコ', 'ブタ','ネズミ','イヌ','ゾウ','キリン', 'タヌキ', '炭治郎']
+
+          const animal = animals[Math.floor(Math.random() * animals.length)];
+          const size = sizes[Math.floor(Math.random() * sizes.length)];
+          const count = Math.floor(Math.random() * 10) + 1
+          return `${count} 匹の${size}${animal}さん`
+        }()
       },
       postRules: [
         v => !!v || 'Name is required',
@@ -195,6 +204,11 @@ new Vue({
     start() {
       this.startWebcam();
       this.alignment();
+      this.loginAnonymously()
+    },
+    async loginAnonymously() {
+      const { user } = await firebase.auth().signInAnonymously()
+      this.user = user
     },
     startWebcam() {
       var $video = this.$refs.monitor.$el
@@ -301,6 +315,7 @@ new Vue({
         if(change.type === 'added') {
           this.posts.push({
             id: change.doc.id,
+            userId: this.user.id,
             src: this.randomAvatar(),
             ...change.doc.data()
           })
@@ -309,6 +324,7 @@ new Vue({
           if (index !== -1) {
             this.posts[index] = {
               id: change.doc.id,
+              userId: this.user.id,
               src: this.randomAvatar(),
               ...change.doc.data()
             }
