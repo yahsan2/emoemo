@@ -5,6 +5,8 @@ const COLORS =  {0:'red',1:'green',2:'purple',3:'yellow', 4:'blue',5:'skyblue',6
 const originalVideoWidth=640;
 const tracker = new tracking.LandmarksTracker();
 
+const firestore = firebase.firestore();
+
 Vue.component('monitor-canvas', {
   template: '<canvas width="320" height="240" ></canvas>',
 })
@@ -17,6 +19,8 @@ new Vue({
   vuetify: new Vuetify(),
   data() {
     return {
+      posts: [],
+      targetEmotion: 'happy',
       valid: false,
       post: {
         text: "",
@@ -273,9 +277,47 @@ new Vue({
       const eyeType = this.avatarStyleOptions.eyeType[Math.floor(Math.random() * this.avatarStyleOptions.eyeType.length)];
       const eyebrowType = this.avatarStyleOptions.eyebrowType[Math.floor(Math.random() * this.avatarStyleOptions.eyebrowType.length)];
       return `https://avataaars.io/?avatarStyle=transparent&topType=${topType}&accessoriesType=${accessoriesType}&hairColor=${hairColor}&facialHairType=${facialHairType}&clotheType=${clotheType}&clotheColor=${clotheColor}&eyeType=${eyeType}&eyebrowType=${eyebrowType}&mouthType=Default&skinColor=Light`
+    },
+    addPost() {
+      if(!this.emotionClass) {
+        return false
+      }
+      firestore.collection("emotions").doc(this.emotionClass).collection('posts').add({
+        name: this.post.name,
+        text: this.post.text
+      })
+      this.$set(this.post, 'name', '')
+      this.$set(this.post, 'text', '')
     }
   },
-  mounted() {
+  async mounted() {
     this.loadModel();
+    const query = firestore.collection("emotions").doc(this.targetEmotion).collection('posts')
+
+    query.onSnapshot(querySnapshot => {
+      let changes = querySnapshot.docChanges();
+      for (let change of changes) {
+        if(change.type === 'added') {
+          this.posts.push({
+            id: change.doc.id,
+            ...change.doc.data()
+          })
+        } else if (change.type === 'modified') {
+          const index = this.posts.findIndex(post => post.id === change.doc.id)
+          if (index !== -1) {
+            this.posts[index] = {
+              id: change.doc.id,
+              ...change.doc.data()
+            }
+          }
+        } else if (change.type === 'removed') {
+          const index = this.posts.findIndex(post => post.id === change.doc.id)
+          if (index !== -1) {
+            this.posts.splice(index, 1)
+          }
+        }
+        console.log(`A document was ${change.type}.`);
+      }
+    });
   },
 })
