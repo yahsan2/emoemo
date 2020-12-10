@@ -21,6 +21,7 @@ new Vue({
     return {
       posts: [],
       targetEmotion: 'happy',
+      isActiveForm: false,
       user: {},
       webcam: false,
       post: {
@@ -178,8 +179,11 @@ new Vue({
     happyIndex() {
       return this.results.findIndex(r => r.className === 'happy')
     },
+    formTop() {
+      return this.isActiveForm? (100 - this.happyProbability * 100) : 100
+    },
     happyProbability() {
-      return this.results.length ? this.results.find(r => r.className === 'happy').probability : 0
+      return this.results.length ? this.results.find(r => r.className === 'happy')?.probability : 0
     },
     topEmotion() {
       return this.results[0] || {}
@@ -188,7 +192,7 @@ new Vue({
       return this.topEmotion.classNumber
     },
     emotionProbability() {
-      return this.topEmotion.probability && this.topEmotion.probability.toFixed(6)
+      return this.topEmotion.probability && this.topEmotion?.probability.toFixed(6)
     },
     emotionEmoji(){
       return this.topEmotion.emoji
@@ -276,6 +280,12 @@ new Vue({
           return b.probability - a.probability;
       }).slice(0,6);
     },
+    openForm(){
+      this.isActiveForm = true
+    },
+    closeForm(){
+      this.isActiveForm = false
+    },
     async loadModel(){
       console.log("model loading..");
       this.debug_message = `model loading...`
@@ -294,27 +304,29 @@ new Vue({
       return `https://avataaars.io/?avatarStyle=transparent&topType=${topType}&accessoriesType=${accessoriesType}&hairColor=${hairColor}&facialHairType=${facialHairType}&clotheType=${clotheType}&clotheColor=${clotheColor}&eyeType=${eyeType}&eyebrowType=${eyebrowType}&mouthType=Default&skinColor=Light`
     },
     addPost() {
-      if(!this.emotionClass) {
+      if(!this.emotionClass && !this.post.text) {
         return false
       }
       firestore.collection("emotions").doc(this.targetEmotion).collection('posts').add({
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userId: this.user.uid,
         name: this.post.name,
         text: this.post.text
       })
       this.$set(this.post, 'text', '')
+      this.isActiveForm = false
     }
   },
   async mounted() {
     this.loadModel();
-    const query = firestore.collection("emotions").doc(this.targetEmotion).collection('posts')
+    const query = firestore.collection("emotions").doc(this.targetEmotion).collection('posts').orderBy('createdAt', 'asc')
 
     query.onSnapshot(querySnapshot => {
       let changes = querySnapshot.docChanges();
       for (let change of changes) {
         if(change.type === 'added') {
-          this.posts.push({
+          this.posts.unshift({
             id: change.doc.id,
-            userId: this.user.id,
             src: this.randomAvatar(),
             ...change.doc.data()
           })
@@ -323,7 +335,6 @@ new Vue({
           if (index !== -1) {
             this.posts[index] = {
               id: change.doc.id,
-              userId: this.user.id,
               src: this.randomAvatar(),
               ...change.doc.data()
             }

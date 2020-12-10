@@ -13,7 +13,7 @@
       <v-app>
         <v-main>
           <v-container>
-						<h1 class="text-center mb-2">笑顔じゃないと見れない SNS</h1>
+						<h1 class="text-center mb-2 site-title">笑顔じゃないと見れない SNS</h1>
             <div class="list-inline" id="video-container">
 							<monitor-video ref="monitor" id="main-stream-video"></monitor-video>
 							<monitor-canvas ref="canvas" id="main-stream-canvas"></monitor-canvas>
@@ -43,7 +43,9 @@
 							</v-card>
 						</div>
           </v-container>
-					<div class="post-form-container" :style="{ 'transform': `translateY(${100 - happyProbability * 100}%)`}">
+					<v-btn class="form-button" color="cyan" dark @click="openForm" v-if="webcam && !isActiveForm"  :style="{'opacity': happyProbability}">投稿</v-btn>
+					<div class="post-form-container" :style="{ 'transform': `translateY(${formTop}%)`}">
+						<button @click="closeForm" class="form-close">✖︎</button>
 						<v-form class="post-form">
 							<v-text-field v-model="post.name" label="ニックネーム" required></v-text-field>
 							<v-textarea
