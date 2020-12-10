@@ -19,8 +19,8 @@
 							<monitor-canvas ref="canvas" id="main-stream-canvas"></monitor-canvas>
 							<canvas ref="faceCanvas" width="100" height="100" id="faceCanvas"></canvas>
 						</div>
-						<v-btn color="cyan" dark block @click="start" class="mt-2 mx-auto">カメラをオンにしてください。</v-btn>
-						<div class="timeline" v-if="emotionClass == 'happy'">
+						<v-btn color="cyan" dark block @click="start" class="mt-2 mx-auto" v-if="!webcam">カメラをオンにしてください。</v-btn>
+						<div class="timeline mt-4" :style="{'opacity': happyProbability}">
 							<v-card class="mb-2 mx-auto" color="#26c6da" dark max-width="400" v-for="(post, index) in posts" :key="post.id">
 								<v-card-text class="headline font-weight-bold">
 									{{post.text}}
@@ -40,13 +40,15 @@
 							</v-card>
 						</div>
           </v-container>
-					<div class="post-form-container">
-						<v-form v-model="valid" class="post-form">
-							<v-text-field v-model="post.name" :counter="10" label="First name" required></v-text-field>
+					<div class="post-form-container" :style="{ 'transform': `translateY(${100 - happyProbability * 100}%)`}">
+						<v-form class="post-form">
+							<v-text-field v-model="post.name" :counter="10" label="ニックネーム" required></v-text-field>
 							<v-textarea
-							name="input-7-1" label="Default style"
+							name="input-7-1"
+							label="楽しい何か"
 							v-model="post.text"
 							:rules="postRules"
+							required
 							></v-textarea>
 							<v-btn color="cyan" dark block @click="addPost">投稿</v-btn>
 						</v-form>

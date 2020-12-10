@@ -21,7 +21,7 @@ new Vue({
     return {
       posts: [],
       targetEmotion: 'happy',
-      valid: false,
+      webcam: false,
       post: {
         text: "",
         name: ""
@@ -170,7 +170,7 @@ new Vue({
       return this.results.findIndex(r => r.className === 'happy')
     },
     happyProbability() {
-      return this.results.find(r => r.className === 'happy').probability
+      return this.results.length ? this.results.find(r => r.className === 'happy').probability : 0
     },
     topEmotion() {
       return this.results[0] || {}
@@ -202,6 +202,7 @@ new Vue({
       tracker.setStepSize(2);
       tracker.setEdgesDensity(0.1);
       $video.play()
+      this.webcam = true
       tracking.track($video, tracker, { camera: true });
     },
     alignment() {
