@@ -300,6 +300,7 @@ new Vue({
         if(change.type === 'added') {
           this.posts.push({
             id: change.doc.id,
+            src: this.randomAvatar(),
             ...change.doc.data()
           })
         } else if (change.type === 'modified') {
@@ -307,6 +308,7 @@ new Vue({
           if (index !== -1) {
             this.posts[index] = {
               id: change.doc.id,
+              src: this.randomAvatar(),
               ...change.doc.data()
             }
           }
